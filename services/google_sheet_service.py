@@ -1,4 +1,5 @@
 import os
+import json
 from datetime import datetime
 
 import gspread
@@ -29,10 +30,18 @@ HEADERS = [
 
 
 def get_client():
-    credentials = Credentials.from_service_account_file(
-        os.getenv("GOOGLE_APPLICATION_CREDENTIALS"),
-        scopes=SCOPES,
-    )
+    service_account_json = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON")
+
+    if service_account_json:
+        credentials = Credentials.from_service_account_info(
+            json.loads(service_account_json),
+            scopes=SCOPES,
+        )
+    else:
+        credentials = Credentials.from_service_account_file(
+            os.getenv("GOOGLE_APPLICATION_CREDENTIALS"),
+            scopes=SCOPES,
+        )
 
     return gspread.authorize(credentials)
 
