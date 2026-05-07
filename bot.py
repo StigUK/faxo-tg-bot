@@ -201,8 +201,6 @@ async def photo_handler(message: Message):
             disable_web_page_preview=True
         )
 
-        append_result_to_sheet(result)
-
         logger.info(
             f"Published race result: "
             f"left={result['left_number']}, "
@@ -211,6 +209,8 @@ async def photo_handler(message: Message):
         )
 
         await message.answer("✅ Опубліковано")
+
+        append_result_to_sheet(result)
 
     except Exception as e:
         logger.exception("Photo processing failed")
