@@ -16,6 +16,8 @@ HEADERS = [
     "race_datetime",
     "left_number",
     "right_number",
+    "rl_left",
+    "rl_right",
     "rt_left",
     "rt_right",
     "et_left",
@@ -46,8 +48,13 @@ def get_client():
     return gspread.authorize(credentials)
 
 
-def get_or_create_worksheet(spreadsheet):
-    today = datetime.now().strftime("%Y-%m-%d")
+def get_or_create_worksheet(spreadsheet, data):
+    race_datetime = data.get("race_datetime", "")
+
+    if race_datetime and " " in race_datetime:
+        today = race_datetime.split(" ")[0]
+    else:
+        today = datetime.now().strftime("%d.%m.%Y")
 
     try:
         worksheet = spreadsheet.worksheet(today)
@@ -71,13 +78,15 @@ def append_result_to_sheet(data: dict):
         os.getenv("GOOGLE_SHEET_ID")
     )
 
-    worksheet = get_or_create_worksheet(spreadsheet)
+    worksheet = get_or_create_worksheet(spreadsheet, data)
 
     row = [
         datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         data["race_datetime"],
         data["left_number"],
         data["right_number"],
+        data["rl_left"],
+        data["rl_right"],
         data["rt_left"],
         data["rt_right"],
         data["et_left"],

@@ -116,6 +116,26 @@ def is_valid_race_result(data: dict) -> bool:
 
     return found_count >= 6
 
+def extract_rl(lines: list[str]) -> tuple[str, str]:
+    for i, line in enumerate(lines):
+        if line.strip().upper() == "RL":
+            left = "—"
+            right = "—"
+
+            if i - 1 >= 0:
+                prev = lines[i - 1].strip().upper()
+                if prev in ["YES", "NO"]:
+                    left = prev
+
+            if i + 1 < len(lines):
+                next_value = lines[i + 1].strip().upper()
+                if next_value in ["YES", "NO"]:
+                    right = next_value
+
+            return left, right
+
+    return "—", "—"
+
 def parse_race_result(text: str) -> dict:
     raw_text = text.strip()
 
@@ -126,6 +146,7 @@ def parse_race_result(text: str) -> dict:
     left_number = find_header_value("LEFT", raw_text) or "—"
     right_number = find_header_value("RIGHT", raw_text) or "—"
 
+    rl_left, rl_right = extract_rl(lines)
     rt_left, rt_right = extract_pair("RT", lines)
     et_left, et_right = extract_pair("ET", lines)
     time_left, time_right = extract_pair("TIME", lines)
@@ -136,6 +157,8 @@ def parse_race_result(text: str) -> dict:
         "race_datetime": race_datetime,
         "left_number": left_number,
         "right_number": right_number,
+        "rl_left": rl_left,
+        "rl_right": rl_right,
         "rt_left": rt_left,
         "rt_right": rt_right,
         "et_left": et_left,
@@ -158,6 +181,7 @@ def format_race_result(data: dict) -> str:
 <pre>
 LEFT: {data["left_number"]:<8} RIGHT: {data["right_number"]}
 
+RL:    {data["rl_left"]:<8} RL:    {data["rl_right"]}
 RT:    {data["rt_left"]:<8} RT:    {data["rt_right"]}
 ET:    {data["et_left"]:<8} ET:    {data["et_right"]}
 TIME:  {data["time_left"]:<8} TIME:  {data["time_right"]}
